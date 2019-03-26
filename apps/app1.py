@@ -58,6 +58,11 @@ layout = html.Div([
     dcc.Input(  id='app1-zF',type='number'
               ,step=0.1,value=1,style=dict(width='10%')),
 
+    html.Br(),
+    html.Br(),
+    html.Div('resulting momentum fractions: '),
+    html.Div(id='app1-mom-frac'),
+
     dcc.Graph(id='app1-graph'),
     html.Br(),
 
@@ -70,6 +75,23 @@ layout = html.Div([
    ]) 
 
 @app.callback(
+     Output('app1-mom-frac', 'children'),
+    [ Input('app1-rS','value'),
+      Input('app1-y3'       , 'value'),
+      Input('app1-y4'      , 'value'),
+      Input('app1-pT'      , 'value'),
+      Input('app1-zR'    , 'value'),
+      Input('app1-zF'     , 'value')
+      ])
+def update_mom_frac(rS,y3,y4,pT,zR,zF):
+    xT=2.*pT/rS
+    x1=0.5*xT*(np.exp( y3)+np.exp( y4))     
+    x2=0.5*xT*(np.exp(-y3)+np.exp(-y4))     
+    text='x1=%10.2e  x2=%10.2e'%(x1,x2)
+    return text 
+
+
+@app.callback(
      Output('app1-graph'   , 'figure'),
     [ Input('app1-rS','value'),
       Input('app1-y3'       , 'value'),
@@ -79,6 +101,12 @@ layout = html.Div([
       Input('app1-zF'     , 'value')
       ])
 def update_graph(rS,y3,y4,pT,zR,zF):
+
+    xT=2.*pT/rS
+    x1=0.5*xT*(np.exp( y3)+np.exp( y4))     
+    x2=0.5*xT*(np.exp(-y3)+np.exp(-y4))     
+    if x1<0 or x1>1: return None
+    if x2<0 or x2>1: return None
 
     layout = go.Layout(
               yaxis=dict(
